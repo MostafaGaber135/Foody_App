@@ -3,15 +3,22 @@ import 'package:foody_app/main.dart';
 
 class CustomTextField extends StatelessWidget {
   final TextEditingController controller;
+  final String hint; // Add this parameter
+  final String? Function(String?)? validator; // Add this parameter
 
-  const CustomTextField({super.key, required this.controller});
+  const CustomTextField({
+    super.key,
+    required this.controller,
+    required this.hint,
+    this.validator,
+  });
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
       controller: controller,
       decoration: InputDecoration(
-        hintText: 'Type your email address',
+        hintText: hint,
         hintStyle: TextStyle(
           fontWeight: FontWeight.w400,
           fontSize: getResoponsiveFontSize(context, fontSize: 14),
@@ -23,20 +30,7 @@ class CustomTextField extends StatelessWidget {
         errorBorder: buildBorder(),
         focusedErrorBorder: buildBorder(),
       ),
-      validator: (value) {
-        const emailPattern = r'^[^@]+@[^@]+\.[^@]+';
-        final regExp = RegExp(emailPattern);
-
-        if (value == null || value.isEmpty) {
-          return 'Please enter an email';
-        } else if (!regExp.hasMatch(value)) {
-          return 'Please enter a valid email';
-        }
-
-     
-  
-        return null;
-      },
+      validator: validator, // Use the validator parameter
     );
   }
 

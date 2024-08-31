@@ -2,19 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:foody_app/main.dart';
 
 class CustomButton extends StatelessWidget {
-  final String text;
-  final VoidCallback onPressed;
+ final String text;
   final Color textColor;
   final Color backgroundColor;
-  final Color? borderColor; // Optional border color
+  final Color borderColor;
+  final void Function()? onPressed;
 
   const CustomButton({
     super.key,
-    required this.text,
-    required this.onPressed,
+     required this.text,
     required this.textColor,
     required this.backgroundColor,
-    this.borderColor, // Optional parameter
+    required this.borderColor,
+    required this.onPressed, 
   });
 
   @override
@@ -31,9 +31,7 @@ class CustomButton extends StatelessWidget {
             backgroundColor: backgroundColor,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
-              side: borderColor != null
-                  ? BorderSide(color: borderColor!)
-                  : BorderSide.none,
+              side: BorderSide(color: borderColor),
             ),
           ),
           child: Text(

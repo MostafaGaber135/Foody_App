@@ -3,8 +3,15 @@ import 'package:foody_app/main.dart';
 
 class CustomPasswordField extends StatefulWidget {
   final TextEditingController controller;
+  final String hint;
+  final String? Function(String?)? validator; // Add this parameter
 
-  const CustomPasswordField({super.key, required this.controller});
+  const CustomPasswordField({
+    super.key,
+    required this.controller,
+    required this.hint,
+    this.validator, // Add this line
+  });
 
   @override
   CustomPasswordFieldState createState() => CustomPasswordFieldState();
@@ -24,7 +31,7 @@ class CustomPasswordFieldState extends State<CustomPasswordField> {
     return TextFormField(
       controller: widget.controller,
       decoration: InputDecoration(
-        hintText: 'Type your password',
+        hintText: widget.hint,
         hintStyle: TextStyle(
           fontWeight: FontWeight.w400,
           fontSize: getResoponsiveFontSize(context, fontSize: 14),
@@ -44,20 +51,7 @@ class CustomPasswordFieldState extends State<CustomPasswordField> {
         ),
       ),
       obscureText: _obscureText,
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'Please enter a password';
-        } else if (value.length < 6) {
-          return 'Password must be at least 6 characters long';
-        } else if (!RegExp(r'[A-Z]').hasMatch(value)) {
-          return 'Password must contain at least one uppercase letter';
-        } else if (!RegExp(r'[0-9]').hasMatch(value)) {
-          return 'Password must contain at least one number';
-        } else if (!RegExp(r'[!@#\$%^&*(),.?":{}|<>]').hasMatch(value)) {
-          return 'Password must contain at least one symbol';
-        }
-        return null;
-      },
+      validator: widget.validator, // Use the validator here
     );
   }
 

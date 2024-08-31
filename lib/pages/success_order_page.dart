@@ -46,17 +46,18 @@ class SuccessOrderPage extends StatelessWidget {
               height: 42,
             ),
             CustomButton(
+              borderColor: const Color(0XFFEB0029),
               textColor: const Color(0XFFFBF2CF),
-              backgroundColor: const Color(0XFFEB0029),
               text: 'Order Other Foods',
-              onPressed: () {
-                Navigator.push(
+              onPressed: () async {
+                await Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => const HomePage(),
                   ),
                 );
               },
+              backgroundColor: const Color(0XFFEB0029),
             ),
             const SizedBox(
               height: 21,
@@ -66,8 +67,8 @@ class SuccessOrderPage extends StatelessWidget {
               backgroundColor: Colors.white,
               borderColor: const Color(0XFFFA7070),
               text: 'View My Order',
-              onPressed: () {
-                Navigator.push(
+              onPressed: () async {
+                await Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => const PaymentAddressPage(),

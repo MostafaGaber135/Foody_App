@@ -49,11 +49,12 @@ class OrderEmptyPage extends StatelessWidget {
                 horizontal: 20,
               ),
               child: CustomButton(
+                borderColor: const Color(0XFFEB0029),
                 textColor: const Color(0XFFFBF2CF),
                 backgroundColor: const Color(0XFFEB0029),
                 text: 'Find Foods',
-                onPressed: () {
-                  Navigator.push(
+                onPressed: () async {
+                await  Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => const HomePage(),

@@ -2,20 +2,32 @@ import 'package:flutter/material.dart';
 
 class CustomFullName extends StatelessWidget {
   final TextEditingController controller;
+  final String hint;
 
-  const CustomFullName({super.key, required this.controller});
+  const CustomFullName({
+    super.key,
+    required this.controller,
+    required this.hint,
+  });
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
       controller: controller,
-      decoration: const InputDecoration(
-        border: OutlineInputBorder(),
-        hintText: 'Enter your full name',
+      decoration: InputDecoration(
+        border: buildBorder(),
+        enabledBorder: buildBorder(),
+        focusedBorder: buildBorder(),
+        errorBorder: buildBorder(),
+        focusedErrorBorder: buildBorder(),
+        hintText: hint,
       ),
       validator: (value) {
         if (value == null || value.isEmpty) {
           return 'Please enter your full name';
+        }
+        if (value.length <= 3) {
+          return 'Full name must be more than 3 letters';
         }
         final namePattern = RegExp(r'^[a-zA-Z\s]+$');
         if (!namePattern.hasMatch(value)) {
@@ -25,4 +37,10 @@ class CustomFullName extends StatelessWidget {
       },
     );
   }
+}
+
+OutlineInputBorder buildBorder() {
+  return OutlineInputBorder(
+    borderRadius: BorderRadius.circular(8),
+  );
 }

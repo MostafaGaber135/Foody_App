@@ -2,11 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:foody_app/main.dart';
 
 class CustomPhoneNumberField extends StatelessWidget {
-  const CustomPhoneNumberField({super.key, required this.hint});
+  const CustomPhoneNumberField({
+    super.key,
+    required this.hint,
+    required this.controller,
+    this.validator, // Add the validator parameter
+  });
+
   final String hint;
+  final TextEditingController controller;
+  final String? Function(String?)? validator; // Declare the validator
+
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      controller: controller,
       decoration: InputDecoration(
         hintStyle: TextStyle(
           fontWeight: FontWeight.w400,
@@ -21,6 +31,7 @@ class CustomPhoneNumberField extends StatelessWidget {
         focusedErrorBorder: buildBorder(),
       ),
       keyboardType: TextInputType.phone,
+      validator: validator, // Use the validator here
     );
   }
 }

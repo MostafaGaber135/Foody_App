@@ -165,7 +165,16 @@ class SignInPageState extends State<SignInPage> with WidgetsBindingObserver {
                 ),
               ),
               const SizedBox(height: 12),
-              CustomTextField(controller: emailController),
+              CustomTextField(
+                hint: 'Type your email',
+                controller: emailController,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your email';
+                  }
+                  return null;
+                },
+              ),
               if (emailError.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.only(top: 8.0),
@@ -184,7 +193,10 @@ class SignInPageState extends State<SignInPage> with WidgetsBindingObserver {
                 ),
               ),
               const SizedBox(height: 12),
-              CustomPasswordField(controller: passwordController),
+              CustomPasswordField(
+                hint: 'Type your password',
+                controller: passwordController,
+              ),
               if (passwordError.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.only(top: 8.0),
@@ -199,6 +211,7 @@ class SignInPageState extends State<SignInPage> with WidgetsBindingObserver {
                 onPressed: signIn,
                 textColor: const Color(0XFFFBF2CF),
                 backgroundColor: const Color(0XFFEB0029),
+                borderColor: const Color(0XFFEB0029),
               ),
               const SizedBox(height: 32),
               GestureDetector(

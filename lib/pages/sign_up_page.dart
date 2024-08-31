@@ -1,12 +1,9 @@
 import 'dart:developer';
-
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:io';
+import 'package:firebase_auth/firebase_auth.dart'; // Import Firebase Auth package
 import 'package:flutter/material.dart';
 import 'package:foody_app/pages/sign_in_page.dart';
-import 'package:foody_app/pages/sign_up_address_page.dart';
-import 'dart:io';
+import 'package:foody_app/pages/success_sign_up_page.dart';
 import 'package:foody_app/widgets/custom_app_bar.dart';
 import 'package:foody_app/widgets/custom_button.dart';
 import 'package:foody_app/widgets/custom_dotted_border.dart';
@@ -32,7 +29,6 @@ class SignUpPageState extends State<SignUpPage> {
   @override
   void initState() {
     super.initState();
-
     fullNameController.addListener(validateFields);
     emailController.addListener(validateFields);
     passwordController.addListener(validateFields);
@@ -49,6 +45,7 @@ class SignUpPageState extends State<SignUpPage> {
   void _onImagePicked(File? image) {
     setState(() {
       _image = image;
+      log('Image picked: ${image?.path}');
     });
   }
 
@@ -57,254 +54,233 @@ class SignUpPageState extends State<SignUpPage> {
     bool isEmailNotEmpty = emailController.text.isNotEmpty;
     bool isPasswordNotEmpty = passwordController.text.isNotEmpty;
 
-    isButtonEnabled.value =
-        isFullNameNotEmpty && isEmailNotEmpty && isPasswordNotEmpty;
+    isButtonEnabled.value = isFullNameNotEmpty &&
+        isEmailNotEmpty &&
+        isPasswordNotEmpty &&
+        _image != null;
   }
 
-  void showErrorMessages() {
-    if (fullNameController.text.isEmpty) {
-      showSnackBar(context, 'Please enter your full name');
-    } else if (emailController.text.isEmpty) {
-      showSnackBar(context, 'Please enter your email');
-    } else if (passwordController.text.isEmpty) {
-      showSnackBar(context, 'Please enter your password');
-    }
+  bool isValidEmail(String email) {
+    final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
+    return emailRegex.hasMatch(email);
   }
 
-  void showSnackBar(BuildContext context, String message) {
-    final snackBar = SnackBar(content: Text(message));
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  bool isValidPassword(String password) {
+    final hasLowerCase = RegExp(r'[a-z]').hasMatch(password);
+    final hasUpperCase = RegExp(r'[A-Z]').hasMatch(password);
+    final hasDigit = RegExp(r'\d').hasMatch(password);
+    final hasSpecialChar = RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(password);
+    return password.length >= 8 &&
+        hasLowerCase &&
+        hasUpperCase &&
+        hasDigit &&
+        hasSpecialChar;
   }
 
-  Future<String?> _uploadImage(File image) async {
+  Future<bool> checkIfEmailExists(String email) async {
+    // Firebase does not provide direct email existence check
+    // You would have to handle this through your own backend or assume non-existence
+    return false;
+  }
+
+  Future<void> createAccount(
+      String fullName, String email, String password, File? image) async {
     try {
-      final storageRef = FirebaseStorage.instance
-          .ref()
-          .child('profile_images/${FirebaseAuth.instance.currentUser!.uid}');
-      final uploadTask = await storageRef.putFile(image);
-      return await uploadTask.ref.getDownloadURL();
+      final credential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      // You might want to save user details like fullName and image to your database here
+      log('Account created successfully: ${credential.user?.uid}');
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        showSnackBar('The password provided is too weak.');
+      } else if (e.code == 'email-already-in-use') {
+        showSnackBar('The account already exists for that email.');
+      } else {
+        showSnackBar('Failed to create account. Please try again.');
+      }
     } catch (e) {
-      log('Error uploading image: $e');
-      return null;
+      showSnackBar('An error occurred. Please try again.');
     }
   }
 
-  Future<void> _submitForm() async {
+  void _continueToAddressPage() async {
     if (_formKey.currentState?.validate() ?? false) {
+      final email = emailController.text;
+      final fullName = fullNameController.text;
+      final password = passwordController.text;
+
       if (_image == null) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Please upload a photo')),
-          );
-        }
+        showSnackBar('Please select an image');
         return;
       }
 
-      if (fullNameController.text.trim().isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please enter your full name')),
-        );
+      bool emailExists = await checkIfEmailExists(email);
+
+      if (!mounted) return; // Ensure the widget is still mounted
+
+      if (emailExists) {
+        showSnackBar('Email already exists');
         return;
       }
 
-      if (emailController.text.trim().isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please enter your email address')),
-        );
-        return;
-      }
+      await createAccount(fullName, email, password, _image);
 
-      if (passwordController.text.trim().isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please enter your password')),
-        );
-        return;
-      }
+      if (!mounted) return; // Ensure the widget is still mounted
 
-      try {
-        final userCredential =
-            await FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email: emailController.text.trim(),
-          password: passwordController.text.trim(),
-        );
-
-        if (userCredential.user != null) {
-          final imageUrl = await _uploadImage(_image!);
-          final fullName = fullNameController.text.trim();
-
-          if (imageUrl != null) {
-            await FirebaseFirestore.instance
-                .collection('users')
-                .doc(userCredential.user!.uid)
-                .set({
-              'fullName': fullName,
-              'profileImageUrl': imageUrl,
-            });
-          }
-
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Account created successfully')),
-            );
-
-            Navigator.pushReplacementNamed(context, '/home');
-          }
-        } else {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Failed to create account')),
-            );
-          }
-        }
-      } on FirebaseAuthException catch (e) {
-        String errorMessage;
-        switch (e.code) {
-          case 'weak-password':
-            errorMessage = 'The password provided is too weak.';
-            break;
-          case 'email-already-in-use':
-            errorMessage = 'The account already exists for that email.';
-            break;
-          case 'invalid-email':
-            errorMessage = 'The email address is invalid.';
-            break;
-          default:
-            errorMessage = 'An error occurred. Please try again later.';
-        }
-
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(errorMessage)),
-          );
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('An unexpected error occurred. Please try again.'),
-            ),
-          );
-        }
-      }
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => const SuccessSignUpPage(),
+        ),
+      );
     }
+  }
+
+  void showSnackBar(String message) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            vertical: MediaQuery.of(context).size.height * 0.05,
-            horizontal: 24,
-          ),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+        padding: EdgeInsets.symmetric(
+          vertical: MediaQuery.of(context).size.height * 0.05,
+          horizontal: 24,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 32),
+            CustomAppBar(
+              title: 'Sign Up',
+              subTitle: 'Register and eat',
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+            const SizedBox(height: 32),
+            CustomDottedBorder(
+              image: _image,
+              onImagePicked: _onImagePicked,
+            ),
+            const SizedBox(height: 32),
+            Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Full Name',
+                    style: TextStyle(
+                      color: Color(0XFF020202),
+                      fontWeight: FontWeight.w400,
+                      fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  CustomFullName(
+                    hint: 'Type your full name',
+                    controller: fullNameController,
+                  ),
+                  const SizedBox(height: 12),
+                  const Text(
+                    'Email',
+                    style: TextStyle(
+                      color: Color(0XFF020202),
+                      fontWeight: FontWeight.w400,
+                      fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  CustomTextField(
+                    hint: 'Type your email',
+                    controller: emailController,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your email';
+                      } else if (!isValidEmail(value)) {
+                        return 'Please enter a valid email address';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  const Text(
+                    'Password',
+                    style: TextStyle(
+                      color: Color(0XFF020202),
+                      fontWeight: FontWeight.w400,
+                      fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  CustomPasswordField(
+                    hint: 'Type your password',
+                    controller: passwordController,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your password';
+                      } else if (!isValidPassword(value)) {
+                        return 'Password must be at least 8 characters long and include a mix of uppercase, lowercase, digits, and special characters';
+                      }
+                      return null;
+                    },
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 32),
+            ValueListenableBuilder<bool>(
+              valueListenable: isButtonEnabled,
+              builder: (context, isEnabled, child) {
+                return CustomButton(
+                  textColor: const Color(0XFFFBF2CF),
+                  backgroundColor: isEnabled
+                      ? const Color(0XFFEB0029)
+                      : const Color(0XFFEB0029),
+                  text: 'Sign Up Now',
+                  onPressed: _continueToAddressPage,
+                  borderColor: const Color(0XFFEB0029),
+                );
+              },
+            ),
+            const SizedBox(height: 22),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const SizedBox(height: 32),
-                const CustomAppBar(
-                  title: 'Sign Up',
-                  subTitle: 'Register and eat',
-                ),
-                const SizedBox(height: 32),
-                CustomDottedBorder(
-                  onImagePicked: _onImagePicked,
-                  image: _image,
-                ),
-                const SizedBox(height: 12),
                 const Text(
-                  'Full Name',
+                  'Already have an account?',
                   style: TextStyle(
-                    color: Color(0XFF020202),
-                    fontWeight: FontWeight.w400,
                     fontSize: 16,
+                    color: Color(0XFF575757),
                   ),
                 ),
-                const SizedBox(height: 12),
-                CustomFullName(controller: fullNameController),
-                const SizedBox(height: 12),
-                const Text(
-                  'Email Address',
-                  style: TextStyle(
-                    color: Color(0XFF020202),
-                    fontWeight: FontWeight.w400,
-                    fontSize: 16,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                CustomTextField(controller: emailController),
-                const SizedBox(height: 24),
-                const Text(
-                  'Password',
-                  style: TextStyle(
-                    color: Color(0XFF020202),
-                    fontWeight: FontWeight.w400,
-                    fontSize: 16,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                CustomPasswordField(controller: passwordController),
-                const SizedBox(height: 32),
-                ValueListenableBuilder<bool>(
-                  valueListenable: isButtonEnabled,
-                  builder: (context, isEnabled, child) {
-                    return CustomButton(
-                      text: 'Continue',
-                      onPressed: isEnabled
-                          ? () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const SignUpAddressPage(),
-                                ),
-                              );
-                            }
-                          : () {
-                              showErrorMessages();
-                            },
-                      textColor: const Color(0XFFFBF2CF),
-                      backgroundColor: const Color(0XFFEB0029),
+                const SizedBox(width: 6),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const SignInPage(),
+                      ),
                     );
                   },
-                ),
-                const SizedBox(height: 22),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text(
-                      'Already have an account?',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Color(0XFF575757),
-                      ),
+                  child: const Text(
+                    'Log in',
+                    style: TextStyle(
+                      fontSize: 21,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0XFFEB0029),
                     ),
-                    const SizedBox(width: 6),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const SignInPage(),
-                          ),
-                        );
-                      },
-                      child: const Text(
-                        'Log in',
-                        style: TextStyle(
-                          fontSize: 21,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0XFFEB0029),
-                        ),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ],
             ),
-          ),
+          ],
         ),
       ),
     );
