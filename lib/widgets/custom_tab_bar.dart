@@ -1,8 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:foody_app/widgets/item_grid_view.dart';
 
 class CustomTabBar extends StatefulWidget {
-  const CustomTabBar({super.key});
+  final int tabLength;
+  final List<String> tabLabels;
+  final List<Widget> tabViews;
+
+  const CustomTabBar({
+    required this.tabLength,
+    required this.tabLabels,
+    required this.tabViews,
+    super.key,
+  });
 
   @override
   CustomTabBarState createState() => CustomTabBarState();
@@ -15,7 +23,7 @@ class CustomTabBarState extends State<CustomTabBar>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: widget.tabLength, vsync: this);
   }
 
   @override
@@ -33,11 +41,7 @@ class CustomTabBarState extends State<CustomTabBar>
           labelPadding: const EdgeInsets.only(right: 20),
           indicatorPadding: EdgeInsets.zero,
           controller: _tabController,
-          tabs: const [
-            Tab(text: 'New Taste'),
-            Tab(text: 'Popular'),
-            Tab(text: 'Recommended'),
-          ],
+          tabs: widget.tabLabels.map((label) => Tab(text: label)).toList(),
           labelColor: Colors.black,
           unselectedLabelColor: Colors.grey,
           indicatorColor: Colors.black,
@@ -45,29 +49,7 @@ class CustomTabBarState extends State<CustomTabBar>
         Expanded(
           child: TabBarView(
             controller: _tabController,
-            children: const [
-              Padding(
-                padding: EdgeInsets.only(
-                  left: 10,
-                  right: 10,
-                ),
-                child: ItemGridView(),
-              ),
-              Padding(
-                padding: EdgeInsets.only(
-                  left: 10,
-                  right: 10,
-                ),
-                child: ItemGridView(),
-              ),
-              Padding(
-                padding: EdgeInsets.only(
-                  left: 10,
-                  right: 10,
-                ),
-                child: ItemGridView(),
-              ),
-            ],
+            children: widget.tabViews,
           ),
         ),
       ],

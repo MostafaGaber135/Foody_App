@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class CustomBottomNavBar extends StatefulWidget {
-  final ValueChanged<int> onTabChanged; // Callback function
+  final ValueChanged<int> onTabChanged;
 
   const CustomBottomNavBar({super.key, required this.onTabChanged});
 

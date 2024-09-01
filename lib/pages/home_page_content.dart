@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:foody_app/widgets/custom_app_bar_home_page.dart';
+import 'package:foody_app/widgets/item_grid_view.dart';
 import 'package:foody_app/widgets/rating_order_grid_view.dart';
 import 'package:foody_app/widgets/custom_tab_bar.dart';
 
@@ -24,7 +25,28 @@ class HomePageContent extends StatelessWidget {
           ),
           Expanded(
             flex: 3,
-            child: CustomTabBar(),
+            child: CustomTabBar(
+              tabLabels: [
+                'New Taste',
+                'Popular',
+                'Recommended',
+              ],
+              tabLength: 3,
+              tabViews: [
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  child: ItemGridView(),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  child: ItemGridView(),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  child: ItemGridView(),
+                ),
+              ],
+            ),
           ),
         ],
       ),

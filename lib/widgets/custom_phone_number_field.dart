@@ -6,12 +6,13 @@ class CustomPhoneNumberField extends StatelessWidget {
     super.key,
     required this.hint,
     required this.controller,
-    this.validator, // Add the validator parameter
+    this.validator,
+    
   });
 
   final String hint;
   final TextEditingController controller;
-  final String? Function(String?)? validator; // Declare the validator
+  final String? Function(String?)? validator; 
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +32,7 @@ class CustomPhoneNumberField extends StatelessWidget {
         focusedErrorBorder: buildBorder(),
       ),
       keyboardType: TextInputType.phone,
-      validator: validator, // Use the validator here
+      validator: validator, 
     );
   }
 }

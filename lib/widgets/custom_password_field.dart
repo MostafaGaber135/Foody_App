@@ -4,13 +4,13 @@ import 'package:foody_app/main.dart';
 class CustomPasswordField extends StatefulWidget {
   final TextEditingController controller;
   final String hint;
-  final String? Function(String?)? validator; // Add this parameter
+  final String? Function(String?)? validator;
 
   const CustomPasswordField({
     super.key,
     required this.controller,
     required this.hint,
-    this.validator, // Add this line
+    this.validator, 
   });
 
   @override
@@ -51,7 +51,7 @@ class CustomPasswordFieldState extends State<CustomPasswordField> {
         ),
       ),
       obscureText: _obscureText,
-      validator: widget.validator, // Use the validator here
+      validator: widget.validator,
     );
   }
 

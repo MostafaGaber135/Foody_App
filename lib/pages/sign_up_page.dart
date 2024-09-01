@@ -1,6 +1,6 @@
 import 'dart:developer';
 import 'dart:io';
-import 'package:firebase_auth/firebase_auth.dart'; // Import Firebase Auth package
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:foody_app/pages/sign_in_page.dart';
 import 'package:foody_app/pages/success_sign_up_page.dart';
@@ -78,8 +78,6 @@ class SignUpPageState extends State<SignUpPage> {
   }
 
   Future<bool> checkIfEmailExists(String email) async {
-    // Firebase does not provide direct email existence check
-    // You would have to handle this through your own backend or assume non-existence
     return false;
   }
 
@@ -91,7 +89,6 @@ class SignUpPageState extends State<SignUpPage> {
         email: email,
         password: password,
       );
-      // You might want to save user details like fullName and image to your database here
       log('Account created successfully: ${credential.user?.uid}');
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
@@ -119,7 +116,7 @@ class SignUpPageState extends State<SignUpPage> {
 
       bool emailExists = await checkIfEmailExists(email);
 
-      if (!mounted) return; // Ensure the widget is still mounted
+      if (!mounted) return; 
 
       if (emailExists) {
         showSnackBar('Email already exists');
@@ -128,7 +125,7 @@ class SignUpPageState extends State<SignUpPage> {
 
       await createAccount(fullName, email, password, _image);
 
-      if (!mounted) return; // Ensure the widget is still mounted
+      if (!mounted) return; 
 
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(

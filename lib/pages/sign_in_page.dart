@@ -34,7 +34,7 @@ class SignInPageState extends State<SignInPage> with WidgetsBindingObserver {
     emailController.dispose();
     passwordController.dispose();
     WidgetsBinding.instance.removeObserver(this);
-    _signOut(); // Sign out when widget is disposed
+    _signOut();
     super.dispose();
   }
 

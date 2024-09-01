@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:foody_app/pages/home_page.dart';
+import 'package:foody_app/pages/order_in_progress_page.dart';
 import 'package:foody_app/widgets/custom_button.dart';
 import 'package:foody_app/widgets/text_details_transaction.dart';
 
@@ -183,7 +183,7 @@ class CustomDetailsItemOrdered extends StatelessWidget {
             await Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const HomePage(),
+                builder: (context) => const OrderInProgressPage(),
               ),
             );
           },

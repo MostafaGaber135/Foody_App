@@ -47,7 +47,7 @@ class _CustomItemState extends State<CustomItem> {
       ),
       title: Text(
         widget.items.title,
-        style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.05),
+        style: const TextStyle(fontSize: 13.5),
       ),
       subtitle: Text(widget.items.subTitle),
       trailing: RatingStars(

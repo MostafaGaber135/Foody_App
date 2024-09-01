@@ -3,8 +3,8 @@ import 'package:foody_app/main.dart';
 
 class CustomTextField extends StatelessWidget {
   final TextEditingController controller;
-  final String hint; // Add this parameter
-  final String? Function(String?)? validator; // Add this parameter
+  final String hint; 
+  final String? Function(String?)? validator;
 
   const CustomTextField({
     super.key,
@@ -30,7 +30,7 @@ class CustomTextField extends StatelessWidget {
         errorBorder: buildBorder(),
         focusedErrorBorder: buildBorder(),
       ),
-      validator: validator, // Use the validator parameter
+      validator: validator, 
     );
   }
 
