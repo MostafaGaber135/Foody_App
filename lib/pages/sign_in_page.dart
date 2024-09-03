@@ -129,6 +129,7 @@ class SignInPageState extends State<SignInPage> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       body: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.symmetric(
@@ -155,7 +156,7 @@ class SignInPageState extends State<SignInPage> with WidgetsBindingObserver {
                   fontSize: getResoponsiveFontSize(context, fontSize: 14),
                 ),
               ),
-              const SizedBox(height: 30),
+              const SizedBox(height: 24),
               Text(
                 'Email Address',
                 style: TextStyle(
@@ -231,7 +232,7 @@ class SignInPageState extends State<SignInPage> with WidgetsBindingObserver {
                   ),
                 ),
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 24),
               Center(
                 child: Text(
                   '- OR Continue with -',
@@ -242,7 +243,7 @@ class SignInPageState extends State<SignInPage> with WidgetsBindingObserver {
                   ),
                 ),
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 24),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -255,7 +256,7 @@ class SignInPageState extends State<SignInPage> with WidgetsBindingObserver {
                   ),
                 ],
               ),
-              const SizedBox(height: 36),
+              const SizedBox(height: 24),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

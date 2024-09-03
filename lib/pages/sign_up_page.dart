@@ -13,7 +13,6 @@ import 'package:foody_app/widgets/custom_text_field.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
-
   @override
   SignUpPageState createState() => SignUpPageState();
 }
@@ -25,7 +24,6 @@ class SignUpPageState extends State<SignUpPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final ValueNotifier<bool> isButtonEnabled = ValueNotifier(false);
-
   @override
   void initState() {
     super.initState();
@@ -50,13 +48,9 @@ class SignUpPageState extends State<SignUpPage> {
   }
 
   void validateFields() {
-    bool isFullNameNotEmpty = fullNameController.text.isNotEmpty;
-    bool isEmailNotEmpty = emailController.text.isNotEmpty;
-    bool isPasswordNotEmpty = passwordController.text.isNotEmpty;
-
-    isButtonEnabled.value = isFullNameNotEmpty &&
-        isEmailNotEmpty &&
-        isPasswordNotEmpty &&
+    isButtonEnabled.value = fullNameController.text.isNotEmpty &&
+        emailController.text.isNotEmpty &&
+        passwordController.text.isNotEmpty &&
         _image != null;
   }
 
@@ -108,25 +102,18 @@ class SignUpPageState extends State<SignUpPage> {
       final email = emailController.text;
       final fullName = fullNameController.text;
       final password = passwordController.text;
-
       if (_image == null) {
         showSnackBar('Please select an image');
         return;
       }
-
       bool emailExists = await checkIfEmailExists(email);
-
-      if (!mounted) return; 
-
+      if (!mounted) return;
       if (emailExists) {
         showSnackBar('Email already exists');
         return;
       }
-
       await createAccount(fullName, email, password, _image);
-
-      if (!mounted) return; 
-
+      if (!mounted) return;
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (context) => const SuccessSignUpPage(),
@@ -142,144 +129,148 @@ class SignUpPageState extends State<SignUpPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(
-          vertical: MediaQuery.of(context).size.height * 0.05,
-          horizontal: 24,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 32),
-            CustomAppBar(
-              title: 'Sign Up',
-              subTitle: 'Register and eat',
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            const SizedBox(height: 32),
-            CustomDottedBorder(
-              image: _image,
-              onImagePicked: _onImagePicked,
-            ),
-            const SizedBox(height: 32),
-            Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Full Name',
-                    style: TextStyle(
-                      color: Color(0XFF020202),
-                      fontWeight: FontWeight.w400,
-                      fontSize: 16,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  CustomFullName(
-                    hint: 'Type your full name',
-                    controller: fullNameController,
-                  ),
-                  const SizedBox(height: 12),
-                  const Text(
-                    'Email',
-                    style: TextStyle(
-                      color: Color(0XFF020202),
-                      fontWeight: FontWeight.w400,
-                      fontSize: 16,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  CustomTextField(
-                    hint: 'Type your email',
-                    controller: emailController,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your email';
-                      } else if (!isValidEmail(value)) {
-                        return 'Please enter a valid email address';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                  const Text(
-                    'Password',
-                    style: TextStyle(
-                      color: Color(0XFF020202),
-                      fontWeight: FontWeight.w400,
-                      fontSize: 16,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  CustomPasswordField(
-                    hint: 'Type your password',
-                    controller: passwordController,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your password';
-                      } else if (!isValidPassword(value)) {
-                        return 'Password must be at least 8 characters long and include a mix of uppercase, lowercase, digits, and special characters';
-                      }
-                      return null;
-                    },
-                  ),
-                ],
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).unfocus();
+      },
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 24),
+              CustomAppBar(
+                title: 'Sign Up',
+                subTitle: 'Register and eat',
+                onTap: () {
+                  Navigator.pop(context);
+                },
               ),
-            ),
-            const SizedBox(height: 32),
-            ValueListenableBuilder<bool>(
-              valueListenable: isButtonEnabled,
-              builder: (context, isEnabled, child) {
-                return CustomButton(
-                  textColor: const Color(0XFFFBF2CF),
-                  backgroundColor: isEnabled
-                      ? const Color(0XFFEB0029)
-                      : const Color(0XFFEB0029),
-                  text: 'Sign Up Now',
-                  onPressed: _continueToAddressPage,
-                  borderColor: const Color(0XFFEB0029),
-                );
-              },
-            ),
-            const SizedBox(height: 22),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text(
-                  'Already have an account?',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Color(0XFF575757),
-                  ),
-                ),
-                const SizedBox(width: 6),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const SignInPage(),
-                      ),
-                    );
-                  },
-                  child: const Text(
-                    'Log in',
-                    style: TextStyle(
-                      fontSize: 21,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0XFFEB0029),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
+              const SizedBox(height: 24),
+              CustomDottedBorder(
+                image: _image,
+                onImagePicked: _onImagePicked,
+              ),
+              const SizedBox(height: 24),
+              _buildForm(),
+              const SizedBox(height: 16),
+              _buildSignUpButton(),
+              const SizedBox(height: 24),
+              _buildSignInLink(),
+            ],
+          ),
         ),
       ),
+    );
+  }
+
+  Widget _buildForm() {
+    return Form(
+      key: _formKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildLabel('Full Name'),
+          const SizedBox(height: 8),
+          CustomFullName(
+            hint: 'Type your full name',
+            controller: fullNameController,
+          ),
+          const SizedBox(height: 8),
+          _buildLabel('Email'),
+          const SizedBox(height: 8),
+          CustomTextField(
+            hint: 'Type your email',
+            controller: emailController,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter your email';
+              } else if (!isValidEmail(value)) {
+                return 'Please enter a valid email address';
+              }
+              return null;
+            },
+          ),
+          const SizedBox(height: 8),
+          _buildLabel('Password'),
+          const SizedBox(height: 8),
+          CustomPasswordField(
+            hint: 'Type your password',
+            controller: passwordController,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter your password';
+              } else if (!isValidPassword(value)) {
+                return 'Password must be at least 8 characters long and include a mix of uppercase, lowercase, digits, and special characters';
+              }
+              return null;
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLabel(String text) {
+    return Text(
+      text,
+      style: const TextStyle(
+        color: Color(0XFF020202),
+        fontWeight: FontWeight.w400,
+        fontSize: 16,
+      ),
+    );
+  }
+
+  Widget _buildSignUpButton() {
+    return ValueListenableBuilder<bool>(
+      valueListenable: isButtonEnabled,
+      builder: (context, isEnabled, child) {
+        return CustomButton(
+          textColor: const Color(0XFFFBF2CF),
+          backgroundColor:
+              isEnabled ? const Color(0XFFEB0029) : const Color(0XFFEB0029),
+          text: 'Sign Up Now',
+          onPressed: _continueToAddressPage,
+          borderColor: const Color(0XFFEB0029),
+        );
+      },
+    );
+  }
+
+  Widget _buildSignInLink() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Text(
+          'Already have an account?',
+          style: TextStyle(
+            fontSize: 16,
+            color: Color(0XFF575757),
+          ),
+        ),
+        const SizedBox(width: 6),
+        GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const SignInPage(),
+              ),
+            );
+          },
+          child: const Text(
+            'Log in',
+            style: TextStyle(
+              fontSize: 21,
+              fontWeight: FontWeight.w600,
+              color: Color(0XFFEB0029),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

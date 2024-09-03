@@ -174,12 +174,12 @@ class CustomDetailsItemOrdered extends StatelessWidget {
           ],
         ),
         const SizedBox(
-          height: 60,
+          height: 18,
         ),
         CustomButton(
           borderColor: const Color(0XFFEB0029),
           text: 'Checkout Now',
-          onPressed: () async{
+          onPressed: () async {
             await Navigator.push(
               context,
               MaterialPageRoute(
